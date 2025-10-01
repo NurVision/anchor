@@ -8,7 +8,7 @@ from apps.users.models import User
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = ("id", "email", "username", "display_name", "is_active", "is_staff")
-    list_display_links = ("id", "email", "phone_number", "first_name", "last_name")
+    list_display_links = ("id", "email", "username",)
     search_fields = ("email", "username", "display_name")
     list_filter = ("is_active", "is_staff")
 
