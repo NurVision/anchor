@@ -32,10 +32,3 @@ class FrontendTranslation(BaseModel):
 
     def __str__(self):
         return str(self.key)
-
-
-class MediaFile(BaseModel):
-    file = models.FileField(upload_to='files')
-
-    def __str__(self):
-        return self.file.name
