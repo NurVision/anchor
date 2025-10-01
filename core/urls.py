@@ -24,6 +24,8 @@ admin.site.login_template = "login.html"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/common/", include("apps.common.urls", namespace="common")),
+    path("api/v1/", include('apps.users.urls', namespace='user')),
+
 ]
 
 urlpatterns += swagger_urlpatterns
