@@ -14,6 +14,6 @@ urlpatterns = [
     path("auth/logout/", views.LogoutAPIView.as_view(), name="logout"),
 
     path('profile/get/', views.ProfileGetAPIView.as_view(), name="profile-get"),
-    path('profile/update/<int:id>', views.ProfileUpdateAPIView.as_view(), name='profile-update'),
-    path('profile/delete/<int:id>', views.ProfileDeleteAPIView.as_view(), name='profile-delete')
+    path('profile/update/', views.ProfileUpdateAPIView.as_view(), name='profile-update'),
+    path('profile/delete/', views.ProfileDeleteAPIView.as_view(), name='profile-delete')
 ]

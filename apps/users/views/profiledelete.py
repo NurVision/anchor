@@ -7,7 +7,9 @@ from apps.users.models import User
 class ProfileDeleteAPIView(DestroyAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticated]
-    lookup_field = "id"
+
+    def get_object(self):
+        return self.request.user
 
     def perform_destroy(self, instance):
         instance.is_active = False

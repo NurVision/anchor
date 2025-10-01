@@ -20,6 +20,8 @@ class UserService:
     def get_by_username(username):
         return User.objects.get(username=username)
 
+
+
     @staticmethod
     def generate_otp(user, expires_in=300):
         """

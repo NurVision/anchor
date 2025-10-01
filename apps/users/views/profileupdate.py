@@ -9,7 +9,6 @@ class ProfileUpdateAPIView(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = ProfileUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
-    lookup_field = "id"
 
-    def get_queryset(self, *args, **kwargs):
-        return self.queryset.filter(id=self.request.user.id)
+    def get_object(self):
+        return self.request.user
