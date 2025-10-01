@@ -13,7 +13,6 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = ["*"]
 
 DJANGO_APPS = [
-    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -30,6 +29,9 @@ LOCAL_APPS = [
 ]
 
 EXTERNAL_APPS = [
+    "jazzmin",
+    'rosetta',
+    'modeltranslation',
     "rest_framework",
     "rest_framework_simplejwt",
     'rest_framework_simplejwt.token_blacklist',

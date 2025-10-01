@@ -200,3 +200,5 @@ static
 staticfiles
 locale
 media
+
+.idea
