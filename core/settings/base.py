@@ -36,7 +36,7 @@ EXTERNAL_APPS = [
     "django_filters",
 ]
 
-INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + EXTERNAL_APPS
+INSTALLED_APPS = EXTERNAL_APPS + DJANGO_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

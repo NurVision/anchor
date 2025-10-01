@@ -1,10 +1,20 @@
-# translation.py
-# from modeltranslation.translator import TranslationOptions, register
+from modeltranslation.translator import register, TranslationOptions
 
-# from . import models
+from apps.item.models import Item, Category, Subcategory, Childcategory
 
 
-# @register(models.FrontendTranslation)
-# class FrontTranslationOptions(TranslationOptions):
-#     fields = ("text",)
-# Loyiha qanday tillarda bo'lishiga qarab settings dan tillar qoshilgandan keyin migratsiya qilinsin
+@register(Item)
+class ItemTranslationOptions(TranslationOptions):
+    fields = ("title", "slug",)
+
+@register(Category)
+class CategoryTranslationOptions(TranslationOptions):
+    fields = ("title", "slug",)
+
+@register(Subcategory)
+class SubcategoryTranslationOptions(TranslationOptions):
+    fields = ("title", "slug",)
+
+@register(Childcategory)
+class ChildcategoryTranslationOptions(TranslationOptions):
+    fields = ("title", "slug",)
