@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from django.utils import timezone
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 
 
 class LoginSerializer(serializers.Serializer):
@@ -18,13 +18,13 @@ class LoginSerializer(serializers.Serializer):
         password = attrs.get("password")
 
         if email and username:
-            raise serializers.ValidationError(
-                "Email and username cannot be both specified"
+            raise exceptions.ValidationError(
+                {"detail": "Email and username cannot be both specified"}
             )
 
         if not email and not username:
-            raise serializers.ValidationError(
-                "Either email or username must be provided"
+            raise exceptions.ValidationError(
+                {"detail": "Either email or username must be provided"}
             )
 
         login_field = email if email else username
@@ -36,18 +36,18 @@ class LoginSerializer(serializers.Serializer):
         )
 
         if not user:
-            raise serializers.ValidationError(
-                "Invalid credentials. Please check your email/username and password."
+            raise exceptions.ValidationError(
+                {"detail": "Invalid credentials. Please check your email/username and password."}
             )
 
         if not user.is_active:
-            raise serializers.ValidationError(
-                "Your account is inactive. Please verify your email first."
+            raise exceptions.ValidationError(
+                {"detail": "Your account is inactive. Please verify your email first."}
             )
 
         if user.is_deleted:
-            raise serializers.ValidationError(
-                "Your account has been deactivated. Please contact support."
+            raise exceptions.ValidationError(
+                {"detail": "Your account has been deactivated. Please contact support."}
             )
 
         user.last_login = timezone.now()

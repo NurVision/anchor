@@ -11,9 +11,19 @@ urlpatterns = [
 
     # Authentication endpoints
     path("auth/login/", views.LoginAPIView.as_view(), name="login"),
+<<<<<<< apps/users/urls.py
     path("auth/logout/", views.LogoutAPIView.as_view(), name="logout"),
 
-    path('profile/get/', views.ProfileGetAPIView.as_view(), name="profile-get"),
-    path('profile/update/', views.ProfileUpdateAPIView.as_view(), name='profile-update'),
-    path('profile/delete/', views.ProfileDeleteAPIView.as_view(), name='profile-delete')
+    
+=======
+    # path("auth/logout/", views.LogoutAPIView.as_view(), name="logout"),
+
+    # Reset password endpoints
+    path("forget-password/", views.RequestPasswordResetAPIView.as_view(), name="logout"),
+    path("forget-password/resend-otp/", views.ResendOTPAPIView.as_view(), name="resend-otp"),
+    path("forget-password/validate/", views.VerifyOTPAndResetPasswordAPIView.as_view(), name="validate-otp"),
+    
+
+    # Retrieve user endpoints
+>>>>>>> apps/users/urls.py
 ]
