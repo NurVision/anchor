@@ -25,7 +25,7 @@ class LoginAPIView(GenericAPIView):
 
             return Response(response_data, status=status.HTTP_200_OK)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 _all_ = ['LoginAPIView']

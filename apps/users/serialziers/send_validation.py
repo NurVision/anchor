@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.users.models import User
+from apps.users.services.user_services import UserTokenService
 from apps.users.tasks.send_vadiation import send_validation_email
 
 
@@ -47,7 +48,7 @@ class SendValidationSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
 
-        link = user.generate_validation_link()
+        link = UserTokenService.generate_email_validation_link(user)
 
         send_validation_email(email, link)
 

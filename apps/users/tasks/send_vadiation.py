@@ -6,6 +6,7 @@ from apps.users.services.user_services import UserService
 
 def send_validation_email(email: str, link: str):
     try:
+        print(">>>>>>>>>>>>>>>>>> Email", settings.DEFAULT_FROM_EMAIL)
         send_email_task.delay(
             subject="Validation Email from mNews",
             message=f"Click the link to validate your email for the mNews: {link}",
