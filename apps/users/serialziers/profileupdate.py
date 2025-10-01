@@ -9,7 +9,4 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         fields = (
             'username',
             'display_name',
-            'email',
-            'is_active',
-            'is_staff'
         )

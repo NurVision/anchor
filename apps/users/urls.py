@@ -12,4 +12,8 @@ urlpatterns = [
     # Authentication endpoints
     path("auth/login/", views.LoginAPIView.as_view(), name="login"),
     path("auth/logout/", views.LogoutAPIView.as_view(), name="logout"),
+
+    path('profile/get/', views.ProfileGetAPIView.as_view(), name="profile-get"),
+    path('profile/update/<int:id>', views.ProfileUpdateAPIView.as_view(), name='profile-update'),
+    path('profile/delete/<int:id>', views.ProfileDeleteAPIView.as_view(), name='profile-delete')
 ]
