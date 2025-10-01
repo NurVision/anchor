@@ -3,6 +3,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from django.utils.translation import gettext_lazy as _
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -20,12 +22,21 @@ DJANGO_APPS = [
 ]
 
 LOCAL_APPS = [
-    "apps.common"
+    "apps.common",
+    "apps.item",
+    "apps.reaction",
+    "apps.users"
 ]
 
-EXTERNAL_APPS = []
+EXTERNAL_APPS = [
+    'rest_framework',
+    'drf_yasg',
+    'jazzmin',
+    'modeltranslation',
+    'rosetta',
+]
 
-INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + EXTERNAL_APPS
+INSTALLED_APPS = EXTERNAL_APPS + DJANGO_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -90,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
+# Internationalization I18N
 
 LANGUAGE_CODE = "en-us"
 
@@ -99,6 +110,18 @@ TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 
 USE_TZ = True
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('uz', _('Uzbel')),
+    ('ru', _('Russian'))
+]
+
+LOCAL_PATHS = [
+    BASE_DIR / 'local',
+]
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
 
 
 # Static files (CSS, JavaScript, Images)
