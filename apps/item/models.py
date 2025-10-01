@@ -44,6 +44,7 @@ class Childcategory(models.Model):
 class Item(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
+    logo = models.ImageField(upload_to="item/logo/", blank=True, null=True)
     category = models.ForeignKey(Childcategory, on_delete=models.CASCADE)
 
     class Meta:
@@ -55,15 +56,19 @@ class Item(models.Model):
 
 
 class ItemBlock(models.Model):
-    TYPE_CHOICES = ("website", "app", "location")
+    TYPE_CHOICES = (
+        ("website", "Website"),
+        ("app", "App"),
+        ("location", "Location"),
+    )
 
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     type = models.CharField(max_length=255, choices=TYPE_CHOICES)
-    url = models.URLField(required=False)
-    appstore = models.CharField(max_length=255, required=False)
-    playstore = models.CharField(max_length=255, required=False)
-    latitude = models.CharField(max_length=255, required=False)
-    longitude = models.CharField(max_length=255, required=False)
+    url = models.URLField()
+    appstore = models.CharField(max_length=255)
+    playstore = models.CharField(max_length=255)
+    latitude = models.CharField(max_length=255)
+    longitude = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = _("Item block")

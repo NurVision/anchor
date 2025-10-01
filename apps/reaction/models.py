@@ -3,14 +3,14 @@ from django.db import models
 
 from django.utils.translation import gettext_lazy as _
 
-from apps import users
 from apps.item.models import Item
 from apps.common.models import BaseModel
+from apps.users.models import User
 
 
-class Comment(models.Model, BaseModel):
+class Comment(BaseModel):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
 
@@ -22,16 +22,16 @@ class Comment(models.Model, BaseModel):
         return self.text
 
 
-class Searched(models.Model, BaseModel):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+class Searched(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Searched")
 
 
-class View(models.Model, BaseModel):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+class View(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     class Meta:
@@ -39,8 +39,8 @@ class View(models.Model, BaseModel):
         verbose_name_plural = _("Views")
 
 
-class Like(models.Model, BaseModel):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+class Like(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     class Meta:
@@ -49,7 +49,7 @@ class Like(models.Model, BaseModel):
 
 
 class Rate(models.Model):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0, null=False, blank=False, validators=[MinValueValidator(0), MaxValueValidator(5)])
 
@@ -62,7 +62,7 @@ class Rate(models.Model):
 
 
 class Review(models.Model):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     text = models.TextField()
 
@@ -75,7 +75,7 @@ class Review(models.Model):
 
 
 class Bookmark(models.Model):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     class Meta:
