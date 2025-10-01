@@ -12,16 +12,16 @@ class SendValidationView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-                Create a new user and send an email validation link.
+            Create a new user and send an email validation link.
 
-                - Validates the provided email and password.
-                - Creates the user if the email doesn't exist.
-                - Generates and sends a validation link via email.
-                - Returns a success message.
+            - Validates the provided email and password.
+            - Creates the user if the email doesn't exist.
+            - Generates and sends a validation link via email.
+            - Returns a success message.
 
-                Raises:
-                    ValidationError: If validation fails (e.g., duplicate email, invalid password).
-                """
+            Raises:
+                ValidationError: If validation fails (e.g., duplicate email, invalid password).
+        """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
