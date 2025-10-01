@@ -44,6 +44,7 @@ class Childcategory(models.Model):
 class Item(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
+    logo = models.ImageField(upload_to="item/logo/", blank=True, null=True)
     category = models.ForeignKey(Childcategory, on_delete=models.CASCADE)
 
     class Meta:

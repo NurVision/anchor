@@ -3,7 +3,6 @@ from django.db import models
 
 from django.utils.translation import gettext_lazy as _
 
-from apps import users
 from apps.item.models import Item
 from apps.common.models import BaseModel
 
