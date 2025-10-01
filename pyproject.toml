@@ -17,12 +17,14 @@ dependencies = [
     "djangorestframework-simplejwt>=5.5.1",
     "drf-yasg>=1.21.10",
     "flower>=2.0.1",
+    "httplib2>=0.31.0",
     "pillow>=11.3.0",
     "pre-commit>=4.2.0",
     "psycopg2-binary>=2.9.10",
     "python-dotenv>=1.1.0",
     "redis>=6.2.0",
     "rest-framework-simplejwt>=0.0.2",
+    "sqlalchemy>=2.0.43",
 ]
 
 [dependency-groups]

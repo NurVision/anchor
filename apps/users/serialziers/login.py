@@ -9,7 +9,7 @@ class LoginSerializer(serializers.Serializer):
         required=False, allow_blank=False, allow_null=False
     )
     password = serializers.CharField(
-        write_only=True, required=True, allow_blank=False, allow_null=False
+        write_only =True, required=True, allow_blank=False, allow_null=False
     )
 
     def validate(self, attrs):
