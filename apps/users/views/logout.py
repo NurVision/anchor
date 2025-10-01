@@ -1,16 +1,14 @@
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
+from rest_framework import status, serializers
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.serialziers.logout import LogoutSerializer
-from apps.users.services.custom_auth import SoftDeleteCheckMixin
 
 
-class LogoutAPIView(SoftDeleteCheckMixin, APIView):
+class LogoutAPIView(GenericAPIView):  # Removed SoftDeleteCheckMixin
     """
     User logout endpoint that blacklists JWT refresh tokens.
     """
@@ -21,29 +19,31 @@ class LogoutAPIView(SoftDeleteCheckMixin, APIView):
         try:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
+
             refresh_token = serializer.validated_data['refresh_token']
-            if refresh_token:
-                token = RefreshToken(refresh_token)
-                token.blacklist()
+            token = RefreshToken(refresh_token)
+            token.blacklist()
 
-            return Response({
-                'success': True,
-                'message': 'Logged out successfully'
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {"detail": "Successfully logged out"},
+                status=status.HTTP_205_RESET_CONTENT
+            )
 
+        except serializers.ValidationError as e:
+            return Response(
+                {"detail": e.detail if hasattr(e, 'detail') else str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except TokenError:
-            return Response({
-                'success': False,
-                'message': 'Invalid token provided'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        except ValidationError as e:
-            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invalid or expired token"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
-            return Response({
-                'success': False,
-                'message': 'Logout failed',
-                'error': str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"detail": "An error occurred during logout"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 _all_ = ['LogoutAPIView']

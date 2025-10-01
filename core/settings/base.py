@@ -155,7 +155,7 @@ REDIS_DB = os.getenv("REDIS_DB", 0)
 
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",  # <<-- change here
+        "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
         "KEY_PREFIX": os.getenv("PROJECT_NAME", "project_name"),
         "OPTIONS": {

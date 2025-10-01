@@ -1,7 +1,10 @@
+import random
+import string
 from datetime import timedelta
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.cache import cache
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
@@ -17,10 +20,59 @@ class UserService:
     def get_by_username(username):
         return User.objects.get(username=username)
 
+    @staticmethod
+    def generate_otp(user, expires_in=300):
+        """
+        Generates a random OTP for user and stores it in cache.
+        :param user: User instance
+        :param expires_in: Expiry time in seconds (default 5 minutes)
+        :return: Generated OTP code
+        """
+        otp = ''.join(random.choices(string.digits, k=6))
+
+        cache_key = f"otp_{user.username}"
+
+        cache.set(cache_key, otp, timeout=expires_in)
+
+        return otp
+
+    @staticmethod
+    def verify_otp(user, otp_code):
+        """
+        Verifies the OTP code for a user.
+        :param user: User instance
+        :param otp_code: OTP code to verify
+        :return: Boolean indicating if OTP is valid
+        """
+        cache_key = f"otp_{user.username}"
+        cached_otp = cache.get(cache_key)
+
+        if cached_otp is None:
+            return False
+
+        if cached_otp == otp_code:
+            cache.delete(cache_key)
+            return True
+
+        return False
+
+    @staticmethod
+    def resend_otp(user):
+        """
+        Resends OTP by generating a new one.
+        Useful for "Resend OTP" functionality.
+        """
+
+        cache_key = f"otp_{user.username}"
+        existing_otp = cache.get(cache_key)
+
+        if existing_otp:
+            cache.delete(cache_key)
+
+        return UserService.generate_otp(user)
 
 
-
-class UserTokenService(UserService):
+class UserTokenService:
     @staticmethod
     def generate_jwt_token(user: User):
         if not user.is_active or getattr(user, 'is_deleted', False):
