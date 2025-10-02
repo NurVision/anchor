@@ -43,13 +43,13 @@ class ItemBlockAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdminTabbed(TabbedTranslationAdmin):
-    list_display = ("id", "title", "parent", "level", "slug")
+    list_display = ("id", "title", "parent", "level")
     list_display_links = ("id", "title")
-    search_fields = ("title_uz", "title_en", "title_ru", "slug")
+    search_fields = ("title_uz", "title_en", "title_ru")
     list_filter = ("level",)
     readonly_fields = ("level",)
 
-    fields = ('parent', 'title', 'slug', 'level')
+    fields = ('parent', 'title', 'level')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "parent":

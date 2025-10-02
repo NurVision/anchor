@@ -1,7 +1,15 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
+
+try:
+    from transliterate import translit
+    HAS_TRANSLITERATE = True
+except ImportError:
+    HAS_TRANSLITERATE = False
 
 
 class BaseModel(models.Model):
@@ -60,3 +68,64 @@ class FrontendTranslation(BaseModel):
 
     def __str__(self):
         return str(self.key)
+
+
+class SlugMixin(models.Model):
+    slug = models.SlugField(max_length=255, blank=True, unique=False)
+
+    class Meta:
+        abstract = True
+
+    def generate_slug(self, source_text, slug_field):
+        if not source_text:
+            return ""
+
+        if HAS_TRANSLITERATE:
+            try:
+                transliterated = translit(source_text, "ru", reversed=True)
+                slug = slugify(transliterated)
+            except Exception:
+                slug = slugify(source_text)
+        else:
+            slug = slugify(source_text)
+
+        # Проверка уникальности
+        original_slug = slug
+        counter = 1
+        while self.__class__.objects.filter(**{slug_field: slug}).exclude(pk=self.pk).exists():
+            slug = f"{original_slug}-{counter}"
+            counter += 1
+
+        return slug
+
+    def save(self, *args, **kwargs):
+        """
+        Генерация slug_xx для каждого языка отдельно
+        """
+        # Agar update_fields berilgan bo'lsa va slug maydonlari yo'q bo'lsa, slug yaratmaymiz
+        update_fields = kwargs.get('update_fields', None)
+        should_generate_slugs = update_fields is None or any(
+            f'slug_{lang}' in update_fields or f'title_{lang}' in update_fields
+            for lang, _ in settings.LANGUAGES
+        )
+
+        if should_generate_slugs:
+            for lang_code, _ in settings.LANGUAGES:
+                title_field = f"title_{lang_code}"
+                slug_field = f"slug_{lang_code}"
+
+                if hasattr(self, title_field) and hasattr(self, slug_field):
+                    # Admin paneldan kelgan qiymatni olish
+                    current_slug = getattr(self, slug_field, None)
+                    current_title = getattr(self, title_field, None)
+
+                    # Faqat slug bo'sh va title mavjud bo'lsa yaratamiz
+                    if not current_slug and current_title:
+                        new_slug = self.generate_slug(current_title, slug_field)
+                        setattr(self, slug_field, new_slug)
+
+        # slug по умолчанию = slug_uz
+        if hasattr(self, "slug_uz") and getattr(self, "slug_uz", None):
+            self.slug = self.slug_uz
+
+        super().save(*args, **kwargs)
