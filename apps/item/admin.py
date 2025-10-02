@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Item, ItemBlock, Category, Childcategory, Subcategory
+from .models import Item, ItemBlock, Category, SubcCategory, ChildCategory
 
 
 class ItemBlockInline(admin.TabularInline):
@@ -59,8 +59,8 @@ class CategoryAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Subcategory)
-class SubcategoryAdmin(admin.ModelAdmin):
+@admin.register(SubcCategory)
+class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "parent__title")
     list_display_links = ("id", "title")
     search_fields = ("title",)
@@ -81,8 +81,8 @@ class SubcategoryAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Childcategory)
-class Childcategory(admin.ModelAdmin):
+@admin.register(ChildCategory)
+class ChildCategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "parent__title")
     list_display_links = ("id", "title")
     search_fields = ("title",)

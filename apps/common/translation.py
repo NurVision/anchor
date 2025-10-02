@@ -1,6 +1,6 @@
 from modeltranslation.translator import register, TranslationOptions
 
-from apps.item.models import Item, Category, Subcategory, Childcategory
+from apps.item.models import Item, Category, SubcCategory, ChildCategory
 
 
 @register(Item)
@@ -11,10 +11,10 @@ class ItemTranslationOptions(TranslationOptions):
 class CategoryTranslationOptions(TranslationOptions):
     fields = ("title", "slug",)
 
-@register(Subcategory)
+@register(SubcCategory)
 class SubcategoryTranslationOptions(TranslationOptions):
     fields = ("title", "slug",)
 
-@register(Childcategory)
-class ChildcategoryTranslationOptions(TranslationOptions):
+@register(ChildCategory)
+class ChildCategoryTranslationOptions(TranslationOptions):
     fields = ("title", "slug",)

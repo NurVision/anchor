@@ -15,7 +15,7 @@ class Category(models.Model):
         return self.title
 
 
-class Subcategory(models.Model):
+class SubcCategory(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
     parent = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -28,10 +28,10 @@ class Subcategory(models.Model):
         return self.title
 
 
-class Childcategory(models.Model):
+class ChildCategory(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
-    parent = models.ForeignKey(Subcategory, on_delete=models.CASCADE)
+    parent = models.ForeignKey(SubcCategory, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Childcategory")
@@ -45,7 +45,7 @@ class Item(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
     logo = models.ImageField(upload_to="item/logo/", blank=True, null=True)
-    category = models.ForeignKey(Childcategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(ChildCategory, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Item")

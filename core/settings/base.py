@@ -42,6 +42,10 @@ EXTERNAL_APPS = [
 
 INSTALLED_APPS = EXTERNAL_APPS + DJANGO_APPS + LOCAL_APPS
 
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
