@@ -3,13 +3,13 @@ from django.db import models
 
 from django.utils.translation import gettext_lazy as _
 
-from apps.item.models import Item
+from apps.item.models import Item, ItemBlock
 from apps.common.models import BaseModel
 from apps.users.models import User
 
 
 class Comment(BaseModel):
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
@@ -24,7 +24,7 @@ class Comment(BaseModel):
 
 class Searched(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Searched")
@@ -32,7 +32,7 @@ class Searched(BaseModel):
 
 class View(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("View")
@@ -41,30 +41,20 @@ class View(BaseModel):
 
 class Like(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Like")
         verbose_name_plural = _("Likes")
 
 
-class Rate(models.Model):
+
+# foydalanib bolgandan keyingi sharh
+class Review(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True)
     rating = models.IntegerField(default=0, null=False, blank=False, validators=[MinValueValidator(0), MaxValueValidator(5)])
-
-    class Meta:
-        verbose_name = _("Rate")
-        verbose_name_plural = _("Rates")
-
-    def __str__(self):
-        return str(self.rating)
-
-
-class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    text = models.TextField()
 
     class Meta:
         verbose_name = _("Review")
@@ -74,9 +64,9 @@ class Review(models.Model):
         return self.text
 
 
-class Bookmark(models.Model):
+class Bookmark(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Bookmark")
