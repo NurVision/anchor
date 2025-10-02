@@ -56,7 +56,6 @@ class CategoryService:
                 **filter_kwargs
             )
         except Category.DoesNotExist:
-
             category = Category.objects.select_related('parent').get(slug=slug)
 
         return category

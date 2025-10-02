@@ -40,11 +40,6 @@ class CategoryFlatSerializer(serializers.ModelSerializer):
             return getattr(obj.parent, f'title_{lang}', obj.parent.title)
         return None
 
-    def get_fields(self):
-        fields = super().get_fields()
-        exclude_fields = self.context.get("exclude_fields", [])
-        return {k: v for k, v in fields.items() if k not in exclude_fields}
-
 
 class CategoryTreeSerializer(serializers.ModelSerializer):
     """Recursive tree serializer - shows nested children"""
@@ -86,11 +81,6 @@ class CategoryTreeSerializer(serializers.ModelSerializer):
             context=self.context
         )
         return serializer.data
-
-    def get_fields(self):
-        fields = super().get_fields()
-        exclude_fields = self.context.get("exclude_fields", [])
-        return {k: v for k, v in fields.items() if k not in exclude_fields}
 
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
@@ -144,8 +134,3 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
         ]
         breadcrumb_items.append(getattr(obj, f'title_{lang}', obj.title))
         return ' > '.join(breadcrumb_items)
-
-    def get_fields(self):
-        fields = super().get_fields()
-        exclude_fields = self.context.get("exclude_fields", [])
-        return {k: v for k, v in fields.items() if k not in exclude_fields}
