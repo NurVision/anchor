@@ -91,11 +91,11 @@ class ItemBlock(models.Model):
 
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     type = models.CharField(max_length=255, choices=TYPE_CHOICES)
-    url = models.URLField()
-    appstore = models.CharField(max_length=255)
-    playstore = models.CharField(max_length=255)
-    latitude = models.CharField(max_length=255)
-    longitude = models.CharField(max_length=255)
+    url = models.URLField(null=True, blank=True)
+    appstore = models.CharField(max_length=255, null=True, blank=True)
+    playstore = models.CharField(max_length=255, null=True, blank=True)
+    latitude = models.CharField(max_length=255, null=True, blank=True)
+    longitude = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         verbose_name = _("Item block")

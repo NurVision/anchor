@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from apps import users
+from core.jazzmin_conf import JAZZMIN_SETTINGS  # noqa
 
 load_dotenv()
 
