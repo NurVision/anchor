@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 
 class Category(models.Model):
     title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
+    slug = models.SlugField(max_length=255, blank=True, )
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -69,14 +69,25 @@ class Category(models.Model):
 
 
 class Item(models.Model):
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
-    logo = models.ImageField(upload_to="item/logo/", blank=True, null=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, verbose_name=_("Title"))
+    slug = models.SlugField(max_length=255, verbose_name=_("Slug"))
+    logo = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name=_("Logo URL")
+    )
+    category = models.ForeignKey(
+        'Category',
+        on_delete=models.CASCADE,
+        verbose_name=_("Category"),
+        related_name='items'
+    )
 
     class Meta:
         verbose_name = _("Item")
         verbose_name_plural = _("Items")
+        ordering = ['title']
 
     def __str__(self):
         return self.title
@@ -84,22 +95,81 @@ class Item(models.Model):
 
 class ItemBlock(models.Model):
     TYPE_CHOICES = (
-        ("website", "Website"),
-        ("app", "App"),
-        ("location", "Location"),
+        ("website", _("Website")),
+        ("app", _("App")),
+        ("location", _("Location")),
     )
 
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    type = models.CharField(max_length=255, choices=TYPE_CHOICES)
-    url = models.URLField()
-    appstore = models.CharField(max_length=255)
-    playstore = models.CharField(max_length=255)
-    latitude = models.CharField(max_length=255)
-    longitude = models.CharField(max_length=255)
+    item = models.ForeignKey(
+        Item,
+        on_delete=models.CASCADE,
+        verbose_name=_("Item"),
+        related_name='blocks'
+    )
+    type = models.CharField(
+        max_length=255,
+        choices=TYPE_CHOICES,
+        verbose_name=_("Type")
+    )
+    url = models.URLField(
+        blank=True,
+        null=True,
+        verbose_name=_("URL"),
+        help_text=_("Website URL (for website type)")
+    )
+    appstore = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name=_("App Store ID"),
+        help_text=_("Apple App Store ID (for app type)")
+    )
+    playstore = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name=_("Play Store ID"),
+        help_text=_("Google Play Store package name (for app type)")
+    )
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        verbose_name=_("Latitude"),
+        help_text=_("Location latitude (for location type)")
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        verbose_name=_("Longitude"),
+        help_text=_("Location longitude (for location type)")
+    )
 
     class Meta:
         verbose_name = _("Item block")
         verbose_name_plural = _("Item blocks")
 
     def __str__(self):
-        return self.type
+        return f"{self.item.title} - {self.get_type_display()}"
+
+    def clean(self):
+        """Validate that required fields are filled based on type"""
+        if self.type == 'website' and not self.url:
+            raise ValidationError({'url': _('URL is required for website type')})
+
+        if self.type == 'app':
+            if not self.appstore and not self.playstore:
+                raise ValidationError({
+                    'appstore': _('At least one app store link is required for app type'),
+                    'playstore': _('At least one app store link is required for app type')
+                })
+
+        if self.type == 'location':
+            if not self.latitude or not self.longitude:
+                raise ValidationError({
+                    'latitude': _('Coordinates are required for location type'),
+                    'longitude': _('Coordinates are required for location type')
+                })
