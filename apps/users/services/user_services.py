@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.storage import default_storage
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
@@ -19,8 +20,6 @@ class UserService:
     @staticmethod
     def get_by_username(username):
         return User.objects.get(username=username)
-
-
 
     @staticmethod
     def generate_otp(user, expires_in=300):
@@ -72,6 +71,47 @@ class UserService:
             cache.delete(cache_key)
 
         return UserService.generate_otp(user)
+
+    @staticmethod
+    def update_avatar(user, avatar_file):
+        """
+        Update user avatar and delete old one.
+        :param user: User instance
+        :param avatar_file: New avatar file (UploadedFile)
+        :return: Updated user instance
+        """
+        if user.avatar:
+            try:
+                if default_storage.exists(user.avatar.name):
+                    default_storage.delete(user.avatar.name)
+
+
+            except Exception as e:
+                print(f"Error deleting old avatar: {e}")
+
+        user.avatar = avatar_file
+        user.save(update_fields=['avatar', 'updated_at'])
+
+        return user
+
+    @staticmethod
+    def delete_avatar(user):
+        """
+        Delete user avatar.
+        :param user: User instance
+        :return: Updated user instance
+        """
+        if user.avatar:
+            try:
+                if default_storage.exists(user.avatar.name):
+                    default_storage.delete(user.avatar.name)
+            except Exception as e:
+                print(f"Error deleting avatar: {e}")
+
+        user.avatar = None
+        user.save(update_fields=['avatar', 'updated_at'])
+
+        return user
 
 
 class UserTokenService:

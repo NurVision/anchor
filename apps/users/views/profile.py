@@ -3,7 +3,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from apps.users.models import User
-from apps.users.serialziers.model_serializer import UserModelSerializer
+from apps.users.serializer.model_serializer import UserModelSerializer
 
 
 class ProfileManageAPIView(GenericAPIView):

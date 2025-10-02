@@ -42,9 +42,22 @@ EXTERNAL_APPS = [
 
 INSTALLED_APPS = EXTERNAL_APPS + DJANGO_APPS + LOCAL_APPS
 
+# Locale
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
+LANGUAGE_CODE = 'uz'
+LANGUAGES = [
+    ('uz', 'O\'zbekcha'),
+    ('ru', 'Русский'),
+    ('en', 'English'),
+]
+USE_I18N = True
+USE_L10N = True
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
+MODELTRANSLATION_LANGUAGES = ('uz', 'ru', 'en')
+MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'ru', 'en')
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -54,6 +67,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.locale.LocaleMiddleware', #for language
 ]
 
 REST_FRAMEWORK = {

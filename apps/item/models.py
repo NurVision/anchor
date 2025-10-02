@@ -1,51 +1,78 @@
 from django.db import models
 
 from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import ValidationError
 
 
 class Category(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children'
+    )
+    level = models.PositiveSmallIntegerField(default=0, editable=False)
 
     class Meta:
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
+        ordering = ['level', 'title']
+        indexes = [
+            models.Index(fields=['parent', 'level']),
+        ]
 
     def __str__(self):
         return self.title
 
+    def clean(self):
+        if self.parent:
+            if self.parent.level >= 2:
+                raise ValidationError("Category tree cannot be deeper than 3 levels")
+            if self.parent == self:
+                raise ValidationError("Category cannot be its own parent")
 
-class SubcCategory(models.Model):
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
-    parent = models.ForeignKey(Category, on_delete=models.CASCADE)
+    def save(self, *args, **kwargs):
+        if self.parent:
+            self.level = self.parent.level + 1
+        else:
+            self.level = 0
+        self.full_clean()
+        super().save(*args, **kwargs)
 
-    class Meta:
-        verbose_name = _("Subcategory")
-        verbose_name_plural = _("Subcategories")
+    def get_ancestors(self):
+        """Get all parent categories up to root"""
+        ancestors = []
+        current = self.parent
+        while current:
+            ancestors.append(current)
+            current = current.parent
+        return reversed(ancestors)
 
-    def __str__(self):
-        return self.title
+    def get_descendants(self):
+        """Get all child categories recursively"""
+        descendants = []
+        for child in self.children.all():
+            descendants.append(child)
+            descendants.extend(child.get_descendants())
+        return descendants
 
+    @property
+    def is_root(self):
+        return self.parent is None
 
-class ChildCategory(models.Model):
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
-    parent = models.ForeignKey(SubcCategory, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = _("Childcategory")
-        verbose_name_plural = _("Childcategories")
-
-    def __str__(self):
-        return self.title
+    @property
+    def is_leaf(self):
+        return not self.children.exists()
 
 
 class Item(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
     logo = models.ImageField(upload_to="item/logo/", blank=True, null=True)
-    category = models.ForeignKey(ChildCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Item")

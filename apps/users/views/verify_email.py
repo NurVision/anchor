@@ -6,7 +6,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 
 from apps.users.models import User
-from apps.users.serialziers.model_serializer import UserModelSerializer
+from apps.users.serializer.model_serializer import UserModelSerializer
 from apps.users.services.user_services import UserService
 from apps.users.tasks.send_vadiation import send_welcome_email
 

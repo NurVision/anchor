@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.users.serialziers.reset_password import VerifyOTPAndResetPasswordSerializer
+from apps.users.serializer.reset_password import VerifyOTPAndResetPasswordSerializer
 from apps.users.services.user_services import UserService
 from apps.users.tasks.send_vadiation import send_reset_password_email
 

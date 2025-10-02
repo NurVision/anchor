@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.serialziers.logout import LogoutSerializer
+from apps.users.serializer.logout import LogoutSerializer
 
 
 class LogoutAPIView(GenericAPIView):  # Removed SoftDeleteCheckMixin

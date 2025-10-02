@@ -20,4 +20,6 @@ urlpatterns = [
 
     # Self Profile endpoints
     path('profile/', views.ProfileManageAPIView.as_view(), name="profile-manage"),
+    path('profile/avatar/upload/', views.UploadAvatarAPIView.as_view(), name='upload-avatar'),
+    path('profile/avatar/delete/', views.DeleteAvatarAPIView.as_view(), name='delete-avatar'),
 ]

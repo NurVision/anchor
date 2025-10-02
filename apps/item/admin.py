@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
+from modeltranslation.admin import TabbedTranslationAdmin
 
-from .models import Item, ItemBlock, Category, SubcCategory, ChildCategory
+from apps.item.models import ItemBlock, Item, Category
 
 
 class ItemBlockInline(admin.TabularInline):
@@ -41,63 +42,16 @@ class ItemBlockAdmin(admin.ModelAdmin):
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "title")
+class CategoryAdminTabbed(TabbedTranslationAdmin):
+    list_display = ("id", "title", "parent", "level", "slug")
     list_display_links = ("id", "title")
-    search_fields = ("title",)
+    search_fields = ("title_uz", "title_en", "title_ru", "slug")
+    list_filter = ("level",)
+    readonly_fields = ("level",)
 
-    fieldsets = (
-        (_("Uzbek"), {
-            'fields': ('title_uz',)
-        }),
-        (_("English"), {
-            'fields': ('title_en',)
-        }),
-        (_("Russian"), {
-            'fields': ('title_ru',)
-        }),
-    )
+    fields = ('parent', 'title', 'slug', 'level')
 
-
-@admin.register(SubcCategory)
-class SubCategoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "parent__title")
-    list_display_links = ("id", "title")
-    search_fields = ("title",)
-
-    fieldsets = (
-        (_("Uzbek"), {
-            'fields': ('title_uz',)
-        }),
-        (_("English"), {
-            'fields': ('title_en',)
-        }),
-        (_("Russian"), {
-            'fields': ('title_ru',)
-        }),
-        (_("Main"), {
-            'fields': ("parent",)
-        }),
-    )
-
-
-@admin.register(ChildCategory)
-class ChildCategoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "parent__title")
-    list_display_links = ("id", "title")
-    search_fields = ("title",)
-
-    fieldsets = (
-        (_("Uzbek"), {
-            'fields': ('title_uz',)
-        }),
-        (_("English"), {
-            'fields': ('title_en',)
-        }),
-        (_("Russian"), {
-            'fields': ('title_ru',)
-        }),
-        (_("Main"), {
-            'fields': ("parent",)
-        }),
-    )
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "parent":
+            kwargs["queryset"] = Category.objects.filter(level__lt=2)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

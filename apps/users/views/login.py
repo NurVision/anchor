@@ -3,7 +3,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from apps.users.serialziers.login import LoginSerializer
+from apps.users.serializer.login import LoginSerializer
 from apps.users.services.user_services import UserTokenService
 
 
