@@ -49,8 +49,8 @@ LOCALE_PATHS = [
 ]
 LANGUAGE_CODE = 'uz'
 LANGUAGES = [
-    ('uz', 'O\'zbekcha'),
-    ('ru', 'Русский'),
+    ('uz', 'Uzbek'),
+    ('ru', 'Russian'),
     ('en', 'English'),
 ]
 USE_I18N = True
@@ -59,6 +59,12 @@ USE_L10N = True
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
 MODELTRANSLATION_LANGUAGES = ('uz', 'ru', 'en')
 MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'ru', 'en')
+
+# Internationalization
+
+TIME_ZONE = "Asia/Tashkent"
+
+USE_TZ = True
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -134,16 +140,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
-# Internationalization
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "Asia/Tashkent"
-
-USE_I18N = True
-
-USE_TZ = True
 
 AUTH_USER_MODEL = "users.User"
 
