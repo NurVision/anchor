@@ -7,7 +7,6 @@ from apps.item.models import Category, Item
 class CategoryTranslationOptions(TranslationOptions):
     fields = ("title", "slug",)
 
-
 @register(Item)
 class ItemTranslationOptions(TranslationOptions):
-    fields = ('title', 'slug',)
+    fields = ("title", "slug",)

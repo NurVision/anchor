@@ -3,10 +3,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
+from apps.common.models import SlugMixin
 
-class Category(models.Model):
+
+class Category(SlugMixin):
     title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, blank=True, )
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -68,9 +69,8 @@ class Category(models.Model):
         return not self.children.exists()
 
 
-class Item(models.Model):
+class Item(SlugMixin):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
-    slug = models.SlugField(max_length=255, verbose_name=_("Slug"))
     logo = models.URLField(
         max_length=500,
         blank=True,
