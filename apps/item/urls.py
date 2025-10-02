@@ -14,18 +14,14 @@ from apps.item.views import (
 app_name = "apps.item"
 
 urlpatterns = [
-<<<<<<< HEAD
-    
-=======
-    # Item uchun yo'llar (sizning branch'ingizdan)
+    # Item uchun yo'llar
     path("item/list/", ItemListAPIView.as_view(), name="item-list"),
     path("item/detail/<int:id>/", ItemDetailAPIView.as_view(), name="item-detail"),
     path("item/post/", ItemCreateAPIView.as_view(), name="item-create"),
     path("item/update/<int:id>/", ItemUpdateAPIView.as_view(), name="item-update"),
     path("item/delete/<int:id>/", ItemDeleteAPIView.as_view(), name="item-delete"),
 
->>>>>>> ed08a4c (feat: category views)
-    # Category uchun yo'llar (master branch'idan)
+    # Category uchun yo'llar
     path('categories/', views.CategoryListView.as_view(), name='category-list'),
     path('categories/<int:pk>/', views.CategoryDetailView.as_view(), name='category-detail'),
     path('categories/tree/', views.CategoryTreeView.as_view(), name='category-tree'),
