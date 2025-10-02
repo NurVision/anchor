@@ -25,7 +25,11 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/common/", include("apps.common.urls", namespace="common")),
     path("api/v1/", include('apps.users.urls', namespace='user')),
+<<<<<<< HEAD
     path("api/v1/", include('apps.item.urls', namespace='user')),
+=======
+    path("api/v1/", include('apps.item.urls', namespace='item')),
+>>>>>>> 0a44f9a5df6bd415a46d0155705781707fcc873b
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 

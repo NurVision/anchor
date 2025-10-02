@@ -1,7 +1,7 @@
 from modeltranslation.utils import get_language
 from rest_framework import serializers
 
-from apps.item.models import Item
+from apps.item.models import Item, Category
 from apps.common.services.languagemixin import LocalizedSerializerMixin
 
 
@@ -12,6 +12,8 @@ class ItemSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     title_en = serializers.CharField(required=False)
     title_uz = serializers.CharField()
 
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+
     class Meta:
         model = Item
         fields = (
@@ -20,6 +22,7 @@ class ItemSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
             "title_ru",
             "title_en",
             "logo",
+            "category"
         )
 
     def to_representation(self, instance):
@@ -27,8 +30,8 @@ class ItemSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
         instance = {
             'id': instance.id,
             'title': instance.title,
-            'category': instance.category,
-            'logo': str(instance.logo.url) if bool(instance.logo) is not False else '',
+            'category': instance.category.id if instance.category else None,
+            'logo': instance.logo,
             'slug': instance.slug,
         }
 
