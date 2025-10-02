@@ -10,7 +10,3 @@ class CategoryTranslationOptions(TranslationOptions):
 @register(Item)
 class ItemTranslationOptions(TranslationOptions):
     fields = ("title", "slug",)
-
-@register(ItemBlock)
-class ItemBlockTranslationOptions(TranslationOptions):
-    fields = ("url",)
