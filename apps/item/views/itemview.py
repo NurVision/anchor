@@ -83,15 +83,31 @@ class ItemListAPIView(ListAPIView):
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
+                'Accept-Language',
+                openapi.IN_HEADER,
+                description="Язык ответа: uz, ru, en",
+                type=openapi.TYPE_STRING
+            ),
+            openapi.Parameter(
                 'search',
                 openapi.IN_QUERY,
-                description="Поиск по title (ru, uz, en) и keyword",
+                description="Поиск по title и keyword",
                 type=openapi.TYPE_STRING
             )
         ]
     )
+
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         if not queryset.exists():
             return Response({"detail": "Bu keyword bilan item topilmadi"})
         return super().list(request, *args, **kwargs)
+
+
+class ItemAllListAPIView(ListAPIView):
+    serializer_class = ItemSerializer
+    permission_classes = []
+    queryset = Item.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
