@@ -20,7 +20,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
 
     fieldsets = [
         (_('Basic Information'), {
-            'fields': ('item', 'type'),
+            'fields': ('title_uz', 'title_ru', 'title_en', 'item', 'type'),
         }),
         (_('Website'), {
             'fields': ('url',),
