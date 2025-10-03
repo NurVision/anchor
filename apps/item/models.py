@@ -107,6 +107,9 @@ class Item(SlugMixin):
     def __str__(self):
         return self.title
 
+    def get_keywords(self):
+        return [ik.keyword for ik in self.item_keywords.all()]
+
 
 class ItemKeyword(BaseModel):
     keyword = models.ForeignKey(
@@ -129,6 +132,7 @@ class ItemKeyword(BaseModel):
 
     def __str__(self):
         return f"{self.item.title} - {self.keyword.name}"
+
 
 class ItemBlock(models.Model):
     TYPE_CHOICES = (

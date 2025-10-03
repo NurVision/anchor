@@ -5,11 +5,11 @@ from apps.item.models import Category, Item, ItemBlock
 
 @register(Category)
 class CategoryTranslationOptions(TranslationOptions):
-    fields = ("title", "slug",)
+    fields = ("title",)
 
 @register(Item)
 class ItemTranslationOptions(TranslationOptions):
-    fields = ("title", "slug",)
+    fields = ("title",)
 
 @register(ItemBlock)
 class ItemBlockTranslationOptions(TranslationOptions):
