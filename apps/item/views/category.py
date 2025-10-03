@@ -135,3 +135,15 @@ class CategoryAncestorsView(generics.ListAPIView):
         ctx = super().get_serializer_context()
         ctx["language"] = get_language()
         return ctx
+
+
+_all_ = [
+    "CategoryListView",
+    "CategoryDetailView",
+    "CategoryTreeView",
+    "CategoryRootsView",
+    "CategoryLeavesView",
+    "CategoryBySlugView",
+    "CategoryAncestorsView",
+    "CategoryLeavesView",
+]

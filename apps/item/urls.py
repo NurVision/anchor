@@ -20,6 +20,7 @@ urlpatterns = [
     path('categories/<slug:slug>/children/', views.CategoryChildrenView.as_view(), name='category-children'),
     path('categories/<slug:slug>/ancestors/', views.CategoryAncestorsView.as_view(), name='category-ancestors'),
 
+    path('api/items/search/', views.ItemSearchView.as_view(), name='item-search'),
     # path("item/list/", ItemListAPIView.as_view(), name="item-list"),
     # path("item/detail/<int:id>/", ItemDetailAPIView.as_view(), name="item-detail"),
     # path("item/post/", ItemCreateAPIView.as_view(), name="item-create"),

@@ -10,30 +10,6 @@ class ItemBlockInline(admin.TabularInline):
     model = ItemBlock
 
 
-# @admin.register(Item)
-# class ItemAdmin(admin.ModelAdmin):
-#     list_display = ("id", "title")
-#     list_display_links = ("id", "title")
-#     search_fields = ("title",)
-#
-#     fieldsets = (
-#         (_("Uzbek"), {
-#             'fields': ('title_uz',)
-#         }),
-#         (_("English"), {
-#             'fields': ('title_en',)
-#         }),
-#         (_("Russian"), {
-#             'fields': ('title_ru',)
-#         }),
-#         (_("Main"), {
-#             'fields': ("category",)
-#         }),
-#     )
-#
-#     inlines = [ItemBlockInline]
-
-
 @admin.register(ItemBlock)
 class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
     list_display = ("id", "get_title_display", "get_item_title", "type", "get_links_display")
