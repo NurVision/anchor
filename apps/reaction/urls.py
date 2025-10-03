@@ -13,7 +13,7 @@ from .views import (
 )
 
 
-app_name = 'reaction'
+app_name = 'apps.reaction'
 
 urlpatterns = [
     path('bookmarks/', BookmarkListCreateAPIView.as_view(), name='bookmark-list-create'),
