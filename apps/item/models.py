@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
-from apps.common.models import SlugMixin
+from apps.common.models import SlugMixin, BaseModel
 
 
 class Category(SlugMixin):
@@ -68,6 +68,17 @@ class Category(SlugMixin):
         return not self.children.exists()
 
 
+class Keyword(SlugMixin):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = _("Keyword")
+        verbose_name_plural = _("Keywords")
+
+    def __str__(self):
+        return self.name
+
+
 class Item(SlugMixin):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     logo = models.URLField(
@@ -82,6 +93,11 @@ class Item(SlugMixin):
         verbose_name=_("Category"),
         related_name='items'
     )
+    description = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_("Description")
+    )
 
     class Meta:
         verbose_name = _("Item")
@@ -91,6 +107,28 @@ class Item(SlugMixin):
     def __str__(self):
         return self.title
 
+
+class ItemKeyword(BaseModel):
+    keyword = models.ForeignKey(
+        'Keyword',
+        on_delete=models.CASCADE,
+        verbose_name=_("Keyword"),
+        related_name='item_keywords'
+    )
+    item = models.ForeignKey(
+        'Item',
+        on_delete=models.CASCADE,
+        verbose_name=_("Item"),
+        related_name='item_keywords'
+    )
+
+    class Meta:
+        verbose_name = _("Item Keyword")
+        verbose_name_plural = _("Item Keywords")
+        ordering = ['item', 'keyword']
+
+    def __str__(self):
+        return f"{self.item.title} - {self.keyword.name}"
 
 class ItemBlock(models.Model):
     TYPE_CHOICES = (

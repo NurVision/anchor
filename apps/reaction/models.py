@@ -12,7 +12,7 @@ class Comment(BaseModel):
     block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
-    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
     class Meta:
         verbose_name = _("Comment")
@@ -22,12 +22,28 @@ class Comment(BaseModel):
         return self.text
 
 
-class Searched(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
+class SearchHistory(BaseModel):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="search_history",
+        verbose_name=_("User")
+    )
+    query = models.CharField(
+        max_length=255,
+        verbose_name=_("Search Query")
+    )
+    block = models.ForeignKey(
+        ItemBlock,
+        on_delete=models.CASCADE,
+        verbose_name=_("Clicked Item Block")
+    )
 
     class Meta:
-        verbose_name = _("Searched")
+        verbose_name = _("Search History")
+        verbose_name_plural = _("Search Histories")
+        ordering = ['-created_at'] 
+
 
 
 class View(BaseModel):
@@ -40,13 +56,14 @@ class View(BaseModel):
 
 
 class Like(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
+    block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE, related_name="likes")
 
     class Meta:
         verbose_name = _("Like")
         verbose_name_plural = _("Likes")
-
+        # Bu bir foydalanuvchi bir block'ga qayta-qayta like bosishining oldini oladi
+        unique_together = ('user', 'block')
 
 
 # foydalanib bolgandan keyingi sharh
@@ -59,6 +76,8 @@ class Review(BaseModel):
     class Meta:
         verbose_name = _("Review")
         verbose_name_plural = _("Reviews")
+        # Har bir user bitta block'ga faqat bitta review yoza olishini ta'minlaydi
+        unique_together = ('user', 'block')
 
     def __str__(self):
         return self.text
