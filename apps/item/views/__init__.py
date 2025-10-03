@@ -1,2 +1,2 @@
-from .itemview import ItemDeleteAPIView, ItemDetailAPIView, ItemListAPIView, ItemCreateAPIView, ItemUpdateAPIView # noqa
-from .category import * # noqa
+from .category import *
+from .item import *
