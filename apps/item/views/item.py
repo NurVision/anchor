@@ -32,7 +32,7 @@ class ItemDetailAPIView(RetrieveAPIView):
 class ItemCreateAPIView(CreateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
-    # permission_classes = [permissions.IsAdminUser,]
+    permission_classes = [permissions.IsAdminUser,]
 
     def post(self, request, *args, **kwargs):
         serializer = ItemSerializer(data=request.data)
@@ -46,7 +46,7 @@ class ItemCreateAPIView(CreateAPIView):
 class ItemUpdateAPIView(UpdateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
-    # permission_classes = [permissions.IsAdminUser,]
+    permission_classes = [permissions.IsAdminUser,]
     lookup_field = 'id'
 
     def put(self, request, *args, **kwargs):
@@ -59,7 +59,7 @@ class ItemUpdateAPIView(UpdateAPIView):
 
 class ItemDeleteAPIView(DestroyAPIView):
     queryset = Item.objects.all()
-    # permission_classes = [permissions.IsAdminUser,]
+    permission_classes = [permissions.IsAdminUser,]
     lookup_field = 'id'
 
     def delete(self, request, *args, **kwargs):

@@ -136,7 +136,7 @@ class ItemBlock(models.Model):
         ("app", _("App")),
         ("location", _("Location")),
     )
-    title = models.CharField(max_length=255, verbose_name=_("Title"), )
+    title = models.CharField(max_length=255, verbose_name=_("Title"))
     item = models.ForeignKey(
         Item,
         on_delete=models.CASCADE,
