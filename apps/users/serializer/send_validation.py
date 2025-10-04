@@ -1,60 +1,74 @@
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from apps.users.models import User
 from apps.users.services.user_services import UserTokenService
-from apps.users.tasks.send_vadiation import send_validation_email
+from apps.users.tasks.send_mail import send_validation_email
 
 
 class SendValidationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True, max_length=32, min_length=8)
+    password = serializers.CharField(required=True, max_length=32, min_length=8, write_only=True)
 
-    def validate(self, attrs):
-        email = attrs.get("email")
-
-        if not email:
-            raise serializers.ValidationError("Email is required.")
-        return attrs
+    def validate_email(self, value):
+        """Validate email format and check for existing users."""
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value.lower()
 
     def validate_password(self, value):
-        if not value:
-            raise serializers.ValidationError("Password is required.")
-        if len(value) < 8:
-            raise serializers.ValidationError("Password is too short.")
-        if len(value) > 32:
-            raise serializers.ValidationError("Password is too long.")
+        """Validate password strength."""
+        try:
+            validate_password(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
         return value
 
     def create(self, validated_data):
         """
-        Create a new user with the given email and password, or raise an error if the email is already in use.
-
-        Args:
-            validated_data (dict): Contains 'email' and 'password' fields.
-
-        Returns:
-            User: The created user instance.
-
-        Raises:
-            serializers.ValidationError: If a user with the given email already exists or if required fields are missing.
+        Create a new user and send verification email.
         """
-        email = validated_data.get("email")
-        password = validated_data.get("password")
+        email = validated_data["email"]
+        password = validated_data["password"]
 
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({"email": "A user with this email already exists"})
+        try:
+            user = User.objects.create(
+                email=email,
+                username=email,
+                is_active=False
+            )
+            user.set_password(password)
+            user.save()
 
-        user = User.objects.create(email=email, username=email)
-        user.set_password(password)
-        user.save()
+            validation_link = UserTokenService.generate_email_link(
+                user,
+                purpose="email_validation",
+                expires_in=24 * 60 * 60
+            )
+            deletion_link = UserTokenService.generate_email_link(
+                user,
+                purpose="deletion",
+                expires_in=48 * 60 * 60
+            )
 
-        link = UserTokenService.generate_email_validation_link(user)
+            email_sent = send_validation_email(email, validation_link, deletion_link)
 
-        send_validation_email(email, link)
+            if not email_sent:
+                user.delete()
+                raise serializers.ValidationError(
+                    "Failed to send verification email. Please try again later."
+                )
 
-        return {
-            "detail": f"Verification link has been sent to {email}. Please check your email to verify your account."
-        }
+            return {
+                "detail": f"Verification link has been sent to {email}. Please check your email to verify your account.",
+                "email": email
+            }
+
+        except Exception as e:
+            if 'user' in locals():
+                user.delete()
+            raise serializers.ValidationError(f"Account creation failed: {str(e)}")
 
 
 _all_ = ["SendValidationSerializer"]
