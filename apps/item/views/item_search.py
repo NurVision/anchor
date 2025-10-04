@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 
 from apps.common.services.classifier.model_loader import classifier
 from apps.item.models import Keyword, Item
-from apps.item.serialziers.item import ItemSerializer
+from apps.item.serialziers.itemserializer import ItemSerializer
 
 
 class ItemSearchView(APIView):

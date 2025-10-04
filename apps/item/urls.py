@@ -1,7 +1,6 @@
 from django.urls import path
 
 from apps.item import views
-from apps.item.tests.test_classifier import TestClassifierView
 
 app_name = "apps.item"
 

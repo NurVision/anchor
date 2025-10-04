@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/v1/common/", include("apps.common.urls", namespace="common")),
     path("api/v1/", include('apps.users.urls', namespace='user')),
     path("api/v1/", include('apps.item.urls', namespace='items')),
+    path("api/v1/", include('apps.reaction.urls', namespace='reactions')),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 

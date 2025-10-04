@@ -109,6 +109,9 @@ class Item(models.Model):
     def __str__(self):
         return self.title
 
+    def get_keywords(self):
+        return [ik.keyword for ik in self.item_keywords.all()]
+
 
 class ItemKeyword(BaseModel):
     keyword = models.ForeignKey(
