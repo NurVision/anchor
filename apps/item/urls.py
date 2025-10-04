@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Item views
     path("item/list/", views.ItemListAPIView.as_view(), name="item-list"),
+    path("item/all/", views.ItemAllListAPIView.as_view(), name="item-all-list"),
     path("item/detail/<int:id>/", views.ItemDetailAPIView.as_view(), name="item-detail"),
     path("item/post/", views.ItemCreateAPIView.as_view(), name="item-create"),
     path("item/update/<int:id>/", views.ItemUpdateAPIView.as_view(), name="item-update"),

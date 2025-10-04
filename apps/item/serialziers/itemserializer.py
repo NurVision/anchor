@@ -14,10 +14,6 @@ class KeywordSerializer(serializers.ModelSerializer):
 class ItemSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     translatable_fields = ['title']
 
-    title_ru = serializers.CharField(required=False)
-    title_en = serializers.CharField(required=False)
-    title_uz = serializers.CharField()
-
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
 
     keywords = KeywordSerializer(
@@ -30,9 +26,7 @@ class ItemSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
         model = Item
         fields = (
             "id",
-            "title_uz",
-            "title_ru",
-            "title_en",
+            "title",
             "logo",
             "category",
             "keywords"
