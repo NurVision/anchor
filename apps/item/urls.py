@@ -37,5 +37,5 @@ urlpatterns = [
     # path("itemblock/delete/<int:id>/", views.ItemBlockDeleteAPIView.as_view(), name="itemblock-delete"),
 
     # Test
-    path("test/classifier/", TestClassifierView.as_view())
+    # path("test/classifier/", TestClassifierView.as_view())
 ]

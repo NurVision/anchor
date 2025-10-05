@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
@@ -6,7 +7,7 @@ from apps.common.models import SlugMixin, BaseModel
 
 
 class Category(models.Model):
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True, blank=True, editable=False)
     title = models.CharField(max_length=255)
     parent = models.ForeignKey(
         'self',
@@ -23,25 +24,52 @@ class Category(models.Model):
         ordering = ['level', 'title']
         indexes = [
             models.Index(fields=['parent', 'level']),
+            models.Index(fields=['slug']),
         ]
 
     def __str__(self):
         return self.title
 
+    def _generate_unique_slug(self):
+        """Generate unique slug from title"""
+        base_slug = slugify(self.title)
+        if not base_slug:
+            base_slug = f"category-{self.pk or ''}"
+
+        slug = base_slug
+        counter = 1
+
+        while Category.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        return slug
+
     def clean(self):
         if self.parent:
             if self.parent.level >= 2:
-                raise ValidationError("Category tree cannot be deeper than 3 levels")
-            if self.parent == self:
-                raise ValidationError("Category cannot be its own parent")
+                raise ValidationError(_("Category tree cannot be deeper than 3 levels"))
+            if self.parent_id == self.pk:
+                raise ValidationError(_("Category cannot be its own parent"))
 
     def save(self, *args, **kwargs):
-        if self.parent:
-            self.level = self.parent.level + 1
-        else:
-            self.level = 0
+        self.level = self.parent.level + 1 if self.parent else 0
+
+        if not self.slug or (self.pk and self._title_changed()):
+            self.slug = self._generate_unique_slug()
+
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def _title_changed(self):
+        """Check if title has changed"""
+        if not self.pk:
+            return True
+        try:
+            old_instance = Category.objects.only('title').get(pk=self.pk)
+            return old_instance.title != self.title
+        except Category.DoesNotExist:
+            return True
 
     def get_ancestors(self):
         """Get all parent categories up to root"""
@@ -50,7 +78,7 @@ class Category(models.Model):
         while current:
             ancestors.append(current)
             current = current.parent
-        return reversed(ancestors)
+        return list(reversed(ancestors))
 
     def get_descendants(self):
         """Get all child categories recursively"""
@@ -62,12 +90,11 @@ class Category(models.Model):
 
     @property
     def is_root(self):
-        return self.parent is None
+        return self.parent_id is None
 
     @property
     def is_leaf(self):
         return not self.children.exists()
-
 
 class Keyword(models.Model):
     name = models.CharField(max_length=255)

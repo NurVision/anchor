@@ -132,7 +132,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(MultilingualAdminMixin, admin.ModelAdmin):
-    list_display = ("id", "get_title_display", "parent", "level")
+    list_display = ("id", "get_title_display", "slug", "parent", "level")
     list_display_links = ("id", "get_title_display")
     search_fields = ("title", "slug")
     list_filter = ("level",)
@@ -152,14 +152,15 @@ class CategoryAdmin(MultilingualAdminMixin, admin.ModelAdmin):
             return obj.title
 
         current_lang = get_language()[:2]
+        title_field = f'title_{current_lang}'
 
-        if hasattr(obj, f'title_{current_lang}'):
-            return getattr(obj, f'title_{current_lang}') or obj.title_uz or '-'
+        if hasattr(obj, title_field):
+            return getattr(obj, title_field) or getattr(obj, 'title_uz', '-')
 
-        return obj.title_uz if hasattr(obj, 'title_uz') else '-'
+        return getattr(obj, 'title_uz', '-')
 
     get_title_display.short_description = _('Title')
-    get_title_display.admin_order_field = 'title_uz'
+    get_title_display.admin_order_field = 'title'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """Limit parent categories to level < 2"""

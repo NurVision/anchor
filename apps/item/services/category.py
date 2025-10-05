@@ -5,7 +5,6 @@ from apps.item.models import Category
 
 
 class CategoryService:
-
     @staticmethod
     def get_all_categories_flat(level=None, parent_id=None):
         """
@@ -38,27 +37,14 @@ class CategoryService:
         return queryset
 
     @staticmethod
-    def get_category_by_slug(slug, language=None):
+    def get_category_by_slug(slug):
         """
-        Get category by slug in specific language
+        Get category by slug
 
         Args:
             slug: Category slug
-            language: Language code (uz, ru, en)
         """
-        if not language:
-            language = get_language()
-
-        filter_kwargs = {f'slug_{language}': slug}
-
-        try:
-            category = Category.objects.select_related('parent').get(
-                **filter_kwargs
-            )
-        except Category.DoesNotExist:
-            category = Category.objects.select_related('parent').get(slug=slug)
-
-        return category
+        return Category.objects.select_related('parent').get(slug=slug)
 
     @staticmethod
     def get_category_with_children(category_id):

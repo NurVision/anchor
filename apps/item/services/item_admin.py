@@ -12,25 +12,17 @@ class MultilingualAdminMixin:
         """
         fieldsets = list(super().get_fieldsets(request, obj))
 
-        # Create language-specific fieldsets
         for lang_code, lang_name in settings.LANGUAGES:
             lang_fields = []
 
-            # Check for title field
             if hasattr(self.model, f'title_{lang_code}'):
                 lang_fields.append(f'title_{lang_code}')
 
-            # Check for name field
             if hasattr(self.model, f'name_{lang_code}'):
                 lang_fields.append(f'name_{lang_code}')
 
-            # Check for description field
             if hasattr(self.model, f'description_{lang_code}'):
                 lang_fields.append(f'description_{lang_code}')
-
-            # Check for slug field
-            if hasattr(self.model, f'slug_{lang_code}'):
-                lang_fields.append(f'slug_{lang_code}')
 
             if lang_fields:
                 fieldsets.append((
@@ -54,7 +46,6 @@ class MultilingualAdminMixin:
             if hasattr(self.model, slug_field) and slug_field not in readonly:
                 readonly.append(slug_field)
 
-        # Add main slug field
         if hasattr(self.model, 'slug') and 'slug' not in readonly:
             readonly.append('slug')
 
