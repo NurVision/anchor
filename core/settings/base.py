@@ -43,23 +43,6 @@ EXTERNAL_APPS = [
 
 INSTALLED_APPS = EXTERNAL_APPS + DJANGO_APPS + LOCAL_APPS
 
-# Locale
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',
-]
-LANGUAGE_CODE = 'uz'
-LANGUAGES = [
-    ('uz', 'Uzbek'),
-    ('ru', 'Russian'),
-    ('en', 'English'),
-]
-USE_I18N = True
-USE_L10N = True
-
-MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
-MODELTRANSLATION_LANGUAGES = ('uz', 'ru', 'en')
-MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'ru', 'en')
-
 # Internationalization
 
 TIME_ZONE = "Asia/Tashkent"
@@ -69,12 +52,37 @@ USE_TZ = True
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
+    # "apps.common.middleware.UserLanguageMiddleware"
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'django.middleware.locale.LocaleMiddleware', #for language
+]
+
+# Internationalization settings
+LANGUAGE_CODE = 'uz'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# Supported languages
+LANGUAGES = [
+    ('uz', 'Uzbek'),
+    ('ru', 'Russian'),
+    ('en', 'English'),
+]
+
+# Language cookie (optional, for persistence)
+LANGUAGE_COOKIE_NAME = 'django_language'
+LANGUAGE_COOKIE_AGE = 365 * 24 * 60 * 60  # 1 year
+LANGUAGE_COOKIE_HTTPONLY = True
+LANGUAGE_COOKIE_SAMESITE = 'Lax'
+
+# Locale paths for translation files
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
 ]
 
 REST_FRAMEWORK = {

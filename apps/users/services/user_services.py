@@ -1,13 +1,13 @@
-import random
-import string
 from datetime import timedelta
+from typing import Dict
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.core.cache import cache
 from django.core.files.storage import default_storage
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from django.urls import reverse
+from rest_framework import exceptions
+from rest_framework_simplejwt.tokens import AccessToken, TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
 
@@ -20,57 +20,6 @@ class UserService:
     @staticmethod
     def get_by_username(username):
         return User.objects.get(username=username)
-
-    @staticmethod
-    def generate_otp(user, expires_in=300):
-        """
-        Generates a random OTP for user and stores it in cache.
-        :param user: User instance
-        :param expires_in: Expiry time in seconds (default 5 minutes)
-        :return: Generated OTP code
-        """
-        otp = ''.join(random.choices(string.digits, k=6))
-
-        cache_key = f"otp_{user.username}"
-
-        cache.set(cache_key, otp, timeout=expires_in)
-
-        return otp
-
-    @staticmethod
-    def verify_otp(user, otp_code):
-        """
-        Verifies the OTP code for a user.
-        :param user: User instance
-        :param otp_code: OTP code to verify
-        :return: Boolean indicating if OTP is valid
-        """
-        cache_key = f"otp_{user.username}"
-        cached_otp = cache.get(cache_key)
-
-        if cached_otp is None:
-            return False
-
-        if cached_otp == otp_code:
-            cache.delete(cache_key)
-            return True
-
-        return False
-
-    @staticmethod
-    def resend_otp(user):
-        """
-        Resends OTP by generating a new one.
-        Useful for "Resend OTP" functionality.
-        """
-
-        cache_key = f"otp_{user.username}"
-        existing_otp = cache.get(cache_key)
-
-        if existing_otp:
-            cache.delete(cache_key)
-
-        return UserService.generate_otp(user)
 
     @staticmethod
     def update_avatar(user, avatar_file):
@@ -129,15 +78,37 @@ class UserTokenService:
         return {"access": str(access), "refresh": str(refresh)}
 
     @staticmethod
-    def generate_email_validation_link(user, expires_in=24 * 60 * 60):
+    def generate_email_link(user, purpose: str = "email_validation", expires_in=24 * 60 * 60):
         """
-        Generates a link for email validation with a SimpleJWT access token.
-        :param user: User instance
-        :param expires_in: Expiry time in seconds (default 24 hours)
-        :return: Full validation link with token as query param
+        Generate a verification link containing a JWT for email-related actions.
+
+        This method creates a time-limited access token (using SimpleJWT)
+        that encodes the user's email and the specified purpose. The token
+        is then embedded into a full verification URL.
+
+        Args:
+            user (User): The user instance for whom the link is being generated.
+                         The user must not be active or soft-deleted.
+            purpose (str, optional): The purpose of the token
+                                     (e.g., "email_validation", "deletion").
+                                     Defaults to "email_validation".
+            expires_in (int, optional): Expiration time in seconds.
+                                        Defaults to 24 hours (24 * 60 * 60).
+
+        Returns:
+            str: A fully qualified verification link with the JWT token
+                 included as a query parameter.
+
+        Raises:
+            ValueError: If the user is already active, soft-deleted,
+                        if the base URL is invalid, or if the purpose is unsupported.
         """
-        if user.is_active or getattr(user, 'is_deleted', False):
-            raise ValueError("Cannot generate token for active or soft-deleted user")
+        if purpose == "email_validation":
+            if user.is_active or getattr(user, 'is_deleted', False):
+                raise ValueError("Cannot generate token for active or soft-deleted user")
+
+        if getattr(user, 'is_deleted', False):
+            raise ValueError("Cannot generate token for soft-deleted user")
 
         base_url = settings.BASE_URL
 
@@ -145,12 +116,60 @@ class UserTokenService:
         if not parsed.scheme or not parsed.netloc:
             raise ValueError("Invalid base URL: must include scheme and domain")
 
+        purpose_url_map = {
+            "email_validation": "apps.user:verify-email",
+            "deletion": "apps.user:cancel-account",
+            "password_reset": "apps.user:reset-password",
+        }
+
+        url_name = purpose_url_map.get(purpose)
+        if not url_name:
+            raise ValueError(f"Unsupported purpose: {purpose}")
+
         access = AccessToken.for_user(user)
         access["email"] = user.email
-        access["purpose"] = "email_validation"
+        access["purpose"] = purpose
         access.set_exp(lifetime=timedelta(seconds=expires_in))
 
-        return f"{base_url.rstrip('/')}/?token={str(access)}"
+        try:
+            relative_path = reverse(url_name)
+        except Exception as e:
+            raise ValueError(f"Could not resolve URL for purpose '{purpose}': {str(e)}")
+
+        return f"{base_url.rstrip('/')}{relative_path}?token={str(access)}"
+
+    @staticmethod
+    def decode_access_token(token: str, expected_purpose: str = None) -> Dict[str, str]:
+        """
+        Decode and validate a SimpleJWT access token used for user actions.
+
+        Args:
+            token (str): The JWT access token string.
+            expected_purpose (str, optional): If provided, the token's `purpose`
+                                              claim must equal this value.
+
+        Returns:
+            dict: Token payload dict (at minimum contains 'email' and 'purpose').
+
+        Raises:
+            rest_framework.exceptions.ValidationError: On invalid/expired token,
+                                                      missing claims, or wrong purpose.
+        """
+        try:
+            access = AccessToken(token)
+        except TokenError:
+            raise exceptions.ValidationError({"token": "Invalid or expired token"})
+
+        purpose = access.get("purpose")
+        email = access.get("email")
+
+        if expected_purpose and purpose != expected_purpose:
+            raise exceptions.ValidationError({"token": "Invalid token purpose"})
+
+        if not email:
+            raise exceptions.ValidationError({"token": "Token missing email claim"})
+
+        return {"email": email, "purpose": purpose}
 
     @staticmethod
     def refresh_access_token(refresh_token):

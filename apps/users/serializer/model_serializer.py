@@ -7,11 +7,11 @@ class UserModelSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = User  #
         fields = ('id', 'email', 'username', 'display_name', "settings", "avatar_url", "is_active", "is_staff",
-                  "created_at","updated_at", "is_deleted", "deleted_at",)
+                  "created_at", "updated_at", "is_deleted", "deleted_at",)
         read_only_fields = ('created_at', 'id', "is_active", "is_staff", "is_deleted", "deleted_at", "email",
-                            "avatar_url",)
+                            "avatar_url", "settings")
 
     def get_fields(self):
         fields = super().get_fields()
@@ -28,3 +28,4 @@ class UserModelSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.avatar.url)
             return obj.avatar.url
         return None
+

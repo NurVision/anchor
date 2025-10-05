@@ -20,7 +20,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
 
     fieldsets = [
         (_('Basic Information'), {
-            'fields': ('title_uz', 'title_ru', 'title_en', 'item', 'type'),
+            'fields': ('title', 'item', 'type'),
         }),
         (_('Website'), {
             'fields': ('url',),
@@ -44,8 +44,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
         if hasattr(obj, 'title'):
             return obj.title
 
-        # Try to get title in current language
-        current_lang = get_language()[:2]  # Get 'uz' from 'uz-uz'
+        current_lang = get_language()[:2]
 
         if hasattr(obj, f'title_{current_lang}'):
             return getattr(obj, f'title_{current_lang}') or obj.title_uz or '-'
@@ -53,7 +52,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
         return obj.title_uz if hasattr(obj, 'title_uz') else '-'
 
     get_title_display.short_description = _('Title')
-    get_title_display.admin_order_field = 'title_uz'  # Allow sorting
+    get_title_display.admin_order_field = 'title_uz'
 
     def get_item_title(self, obj):
         """Display item title in current language or fallback"""
@@ -63,8 +62,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
         if hasattr(obj.item, 'title'):
             return obj.item.title
 
-        # Try to get title in current language
-        current_lang = get_language()[:2]  # Get 'uz' from 'uz-uz'
+        current_lang = get_language()[:2]
 
         if hasattr(obj.item, f'title_{current_lang}'):
             return getattr(obj.item, f'title_{current_lang}') or obj.item.title_uz or '-'
@@ -72,7 +70,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
         return obj.item.title_uz if hasattr(obj.item, 'title_uz') else '-'
 
     get_item_title.short_description = _('Item')
-    get_item_title.admin_order_field = 'item__title_uz'  # Allow sorting
+    get_item_title.admin_order_field = 'item__title_uz'
 
     def get_links_display(self, obj):
         """Display relevant links based on type"""
@@ -108,21 +106,17 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
             from django.db.models import Q
             q_objects = Q()
 
-            # Search in base title field if exists
             if hasattr(self.model, 'title'):
                 q_objects |= Q(title__icontains=search_term)
 
-            # Search in base item title field if exists
             if hasattr(self.model._meta.get_field('item').related_model, 'title'):
                 q_objects |= Q(item__title__icontains=search_term)
 
-            # Search in multilingual title fields
             for lang_code, _ in settings.LANGUAGES:
                 title_field = f'title_{lang_code}'
                 if hasattr(self.model, title_field):
                     q_objects |= Q(**{f'{title_field}__icontains': search_term})
 
-                # Search in multilingual item title fields
                 item_title_field = f'item__title_{lang_code}'
                 try:
                     if hasattr(self.model._meta.get_field('item').related_model, f'title_{lang_code}'):
@@ -138,7 +132,7 @@ class ItemBlockAdmin(MultilingualAdminMixin, admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(MultilingualAdminMixin, admin.ModelAdmin):
-    list_display = ("id", "get_title_display", "parent", "level")
+    list_display = ("id", "get_title_display", "slug", "parent", "level")
     list_display_links = ("id", "get_title_display")
     search_fields = ("title", "slug")
     list_filter = ("level",)
@@ -148,7 +142,7 @@ class CategoryAdmin(MultilingualAdminMixin, admin.ModelAdmin):
 
     fieldsets = [
         (_('Basic Information'), {
-            'fields': ('parent', 'level', 'slug'),
+            'fields': ('parent', "title"),
         }),
     ]
 
@@ -157,16 +151,16 @@ class CategoryAdmin(MultilingualAdminMixin, admin.ModelAdmin):
         if hasattr(obj, 'title'):
             return obj.title
 
-        # Try to get title in current language
-        current_lang = get_language()[:2]  # Get 'uz' from 'uz-uz'
+        current_lang = get_language()[:2]
+        title_field = f'title_{current_lang}'
 
-        if hasattr(obj, f'title_{current_lang}'):
-            return getattr(obj, f'title_{current_lang}') or obj.title_uz or '-'
+        if hasattr(obj, title_field):
+            return getattr(obj, title_field) or getattr(obj, 'title_uz', '-')
 
-        return obj.title_uz if hasattr(obj, 'title_uz') else '-'
+        return getattr(obj, 'title_uz', '-')
 
     get_title_display.short_description = _('Title')
-    get_title_display.admin_order_field = 'title_uz'  # Allow sorting
+    get_title_display.admin_order_field = 'title'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """Limit parent categories to level < 2"""
@@ -184,11 +178,9 @@ class CategoryAdmin(MultilingualAdminMixin, admin.ModelAdmin):
             from django.db.models import Q
             q_objects = Q()
 
-            # Search in base title field if exists
             if hasattr(self.model, 'title'):
                 q_objects |= Q(title__icontains=search_term)
 
-            # Search in multilingual title fields
             for lang_code, _ in settings.LANGUAGES:
                 title_field = f'title_{lang_code}'
                 if hasattr(self.model, title_field):
@@ -208,45 +200,6 @@ class ItemKeywordInline(admin.TabularInline):
     verbose_name_plural = _("Keywords")
 
 
-@admin.register(Keyword)
-class KeywordAdmin(MultilingualAdminMixin, admin.ModelAdmin):
-    list_display = ['name', 'slug', 'get_item_count']
-    search_fields = ['name', 'slug']
-    list_per_page = 50
-
-    fieldsets = [
-        (_('Basic Information'), {
-            'fields': ('name', 'slug'),
-        }),
-    ]
-
-    def get_item_count(self, obj):
-        """Display count of items using this keyword"""
-        return obj.item_keywords.count()
-
-    get_item_count.short_description = _('Items Count')
-
-    def get_search_results(self, request, queryset, search_term):
-        """
-        Enhanced search for autocomplete
-        """
-        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
-
-        if search_term:
-            # Search in all language fields
-            from django.db.models import Q
-            q_objects = Q()
-
-            for lang_code, _ in settings.LANGUAGES:
-                name_field = f'name_{lang_code}'
-                if hasattr(self.model, name_field):
-                    q_objects |= Q(**{f'{name_field}__icontains': search_term})
-
-            queryset |= self.model.objects.filter(q_objects)
-
-        return queryset, use_distinct
-
-
 @admin.register(Item)
 class ItemAdmin(MultilingualAdminMixin, admin.ModelAdmin):
     list_display = ['title', 'category', 'slug', 'get_keywords_display']
@@ -257,7 +210,7 @@ class ItemAdmin(MultilingualAdminMixin, admin.ModelAdmin):
 
     fieldsets = [
         (_('Basic Information'), {
-            'fields': ('title', 'slug', 'category', 'logo'),
+            'fields': ('title', 'category', 'logo'),
         }),
         (_('Content'), {
             'fields': ('description',),
@@ -304,6 +257,45 @@ class ItemAdmin(MultilingualAdminMixin, admin.ModelAdmin):
         return queryset, use_distinct
 
 
+@admin.register(Keyword)
+class KeywordAdmin(MultilingualAdminMixin, admin.ModelAdmin):
+    list_display = ['name', 'get_item_count']
+    search_fields = ['name', ]
+    list_per_page = 50
+
+    fieldsets = [
+        (_('Basic Information'), {
+            'fields': ('name',),
+        }),
+    ]
+
+    def get_item_count(self, obj):
+        """Display count of items using this keyword"""
+        return obj.item_keywords.count()
+
+    get_item_count.short_description = _('Items Count')
+
+    def get_search_results(self, request, queryset, search_term):
+        """
+        Enhanced search for autocomplete
+        """
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+
+        if search_term:
+
+            from django.db.models import Q
+            q_objects = Q()
+
+            for lang_code, _ in settings.LANGUAGES:
+                name_field = f'name_{lang_code}'
+                if hasattr(self.model, name_field):
+                    q_objects |= Q(**{f'{name_field}__icontains': search_term})
+
+            queryset |= self.model.objects.filter(q_objects)
+
+        return queryset, use_distinct
+
+
 @admin.register(ItemKeyword)
 class ItemKeywordAdmin(admin.ModelAdmin):
     list_display = ['item', 'keyword']
@@ -321,7 +313,6 @@ class ItemKeywordAdmin(admin.ModelAdmin):
             from django.db.models import Q
             q_objects = Q(item__title__icontains=search_term) | Q(keyword__name__icontains=search_term)
 
-            # Search in multilingual fields
             for lang_code, _ in settings.LANGUAGES:
                 if hasattr(Item, f'title_{lang_code}'):
                     q_objects |= Q(**{f'item__title_{lang_code}__icontains': search_term})

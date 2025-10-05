@@ -3,7 +3,7 @@ from rest_framework.generics import UpdateAPIView, DestroyAPIView, ListAPIView, 
 from rest_framework.response import Response
 
 from apps.item.models import  ItemBlock
-from apps.item.serialziers.itemblockserializer import ItemBlockSerializer
+from apps.item.serialziers.item_block import ItemBlockSerializer
 
 
 class ItemBlockListAPIView(ListAPIView):
