@@ -12,7 +12,7 @@ urlpatterns = [
 
     # Authentication endpoints
     path("auth/login/", views.LoginAPIView.as_view(), name="login"),
-    path("auth/logout/", views.LogoutAPIView.as_view(), name="logout"),
+    # path("auth/logout/", views.LogoutAPIView.as_view(), name="logout"),
 
     # Reset password endpoints
     path("forget-password/", views.RequestPasswordResetAPIView.as_view(), name="request-password-reset"),

@@ -31,6 +31,4 @@ class ProfileManageAPIView(GenericAPIView):
     def delete(self, request, *args, **kwargs):
         user = self.get_object()
         user.soft_delete()
-        user.is_active = False
-        user.save(update_fields=["is_active"])
         return Response(status=status.HTTP_204_NO_CONTENT)
