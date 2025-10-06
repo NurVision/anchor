@@ -29,7 +29,7 @@ class SendValidationSerializer(serializers.Serializer):
         """
         Create a new user and send verification email.
         """
-        email = validated_data["email"]
+        email = validated_data["email"].lower()
         password = validated_data["password"]
 
         try:
@@ -55,7 +55,8 @@ class SendValidationSerializer(serializers.Serializer):
             email_sent = send_validation_email(email, validation_link, deletion_link)
 
             if not email_sent:
-                user.delete()
+                if user.id:
+                    user.delete()
                 raise serializers.ValidationError(
                     "Failed to send verification email. Please try again later."
                 )
@@ -66,7 +67,7 @@ class SendValidationSerializer(serializers.Serializer):
             }
 
         except Exception as e:
-            if 'user' in locals():
+            if 'user' in locals() and getattr(user, "id", None):
                 user.delete()
             raise serializers.ValidationError(f"Account creation failed: {str(e)}")
 

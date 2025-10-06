@@ -80,7 +80,7 @@ class Review(BaseModel):
         unique_together = ('user', 'block')
 
     def __str__(self):
-        return self.text
+        return self.text or f"Review by {self.user}"
 
 
 class Bookmark(BaseModel):
