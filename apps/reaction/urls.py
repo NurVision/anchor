@@ -5,7 +5,8 @@ from .views import (
     BookmarkCreateAPIView,
     BookmarkDestroyAPIView,
     CommentDetailAPIView,
-    CommentListCreateAPIView,
+    CommentListAPIView,
+    CommentCreateAPIView,
     LikeToggleAPIView,
     ReviewDetailAPIView,
     ReviewListCreateAPIView,
@@ -17,10 +18,11 @@ from .views import (
 app_name = 'apps.reaction'
 
 urlpatterns = [
-    path('bookmarks/', BookmarkListAPIView.as_view(), name='bookmark-list-create'),
+    path('bookmarks/', BookmarkListAPIView.as_view(), name='bookmark-list'),
     path('bookmarks/create/', BookmarkCreateAPIView.as_view(), name='bookmark-create'),
     path('bookmarks/<int:pk>/', BookmarkDestroyAPIView.as_view(), name='bookmark-destroy'),
-    path('comments/', CommentListCreateAPIView.as_view(), name='comment-list-create'),
+    path('comments/', CommentListAPIView.as_view(), name='comment-list'),
+    path('comments/create/', CommentCreateAPIView.as_view(), name='comment-create'),
     path('comments/<int:pk>/', CommentDetailAPIView.as_view(), name='comment-detail'),
     path('blocks/<int:block_pk>/like/', LikeToggleAPIView.as_view(), name='like-toggle'),
     path('blocks/<int:block_pk>/reviews/', ReviewListCreateAPIView.as_view(), name='review-list-create'),

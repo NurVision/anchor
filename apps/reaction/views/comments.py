@@ -1,6 +1,5 @@
-# your_app/views.py
-
 from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
@@ -10,35 +9,29 @@ from apps.reaction.serializers.comments import CommentSerializer
 from apps.reaction.permissions import IsOwnerOrReadOnly
 
 
-class CommentListCreateAPIView(APIView):
-    """
-    Block uchun izohlar ro'yxatini olish (GET) va yangi izoh yaratish (POST).
-    """
+class CommentListAPIView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request, block_pk, *args, **kwargs):
-        """
-        URL'da berilgan 'block_pk' uchun barcha asosiy izohlarni qaytaradi.
-        """
         block = get_object_or_404(ItemBlock, pk=block_pk)
-        # Faqat shu block'ga tegishli va parent'i yo'q izohlarni olamiz.
-        comments = Comment.objects.filter(block=block, parent__isnull=True)
+        # Faqat parent izohlarni olamiz, ichida replies chiqadi
+        comments = Comment.objects.filter(block=block, parent__isnull=True).order_by('-created_at')
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, block_pk, *args, **kwargs):
-        """
-        URL'da berilgan 'block_pk' uchun yangi izoh yaratadi.
-        """
-        block = get_object_or_404(ItemBlock, pk=block_pk)
+
+class CommentCreateAPIView(CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
         serializer = CommentSerializer(data=request.data)
-        
         if serializer.is_valid():
-            # User'ni va block'ni avtomatik bog'laymiz
-            serializer.save(user=request.user, block=block)
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentDetailAPIView(APIView):
@@ -78,6 +71,7 @@ class CommentDetailAPIView(APIView):
     
 
 __all__ = [
-    "CommentListCreateAPIView",
+    "CommentListAPIView",
+    "CommentCreateAPIView",
     "CommentDetailAPIView",
 ]
