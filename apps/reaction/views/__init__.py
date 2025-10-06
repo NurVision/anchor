@@ -2,4 +2,4 @@ from .bookmark import BookmarkListAPIView, BookmarkDestroyAPIView, BookmarkCreat
 from .comments import CommentListAPIView, CommentDetailAPIView, CommentCreateAPIView, CommentDeleteAPIView # noqa
 from .like import LikeToggleAPIView # noqa
 from .review import ReviewListCreateAPIView, ReviewDetailAPIView # noqa
-from .search_history import SearchHistoryListCreateAPIView, SearchHistoryClearAPIView # noqa
+from .search_history import SearchHistoryListAPIView, SearchHistoryClearAPIView, SearchHistoryCreateAPIView # noqa

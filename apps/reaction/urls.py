@@ -12,7 +12,8 @@ from .views import (
     ReviewDetailAPIView,
     ReviewListCreateAPIView,
     SearchHistoryClearAPIView,
-    SearchHistoryListCreateAPIView,
+    SearchHistoryListAPIView,
+    SearchHistoryCreateAPIView,
 )
 
 
@@ -29,6 +30,7 @@ urlpatterns = [
     path('blocks/<int:block_pk>/like/', LikeToggleAPIView.as_view(), name='like-toggle'),
     path('blocks/<int:block_pk>/reviews/', ReviewListCreateAPIView.as_view(), name='review-list-create'),
     path('reviews/<int:pk>/', ReviewDetailAPIView.as_view(), name='review-detail'),
-    path('search-history/', SearchHistoryListCreateAPIView.as_view(), name='search-history-list-create'),
+    path('search-history/', SearchHistoryListAPIView.as_view(), name='search-history-list-create'),
+    path('search-history/create/', SearchHistoryCreateAPIView.as_view(), name='search-history-create'),
     path('search-history/clear/', SearchHistoryClearAPIView.as_view(), name='search-history-clear'),
 ]
