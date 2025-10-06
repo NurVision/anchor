@@ -1,44 +1,38 @@
-# your_app/views.py
-
+from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, serializers
 from django.shortcuts import get_object_or_404
 
 from apps.reaction.models import Review, ItemBlock
 from apps.reaction.serializers.review import ReviewSerializer
 from apps.reaction.permissions import IsOwnerOrReadOnly 
 
-class ReviewListCreateAPIView(APIView):
+from rest_framework.generics import ListCreateAPIView
+
+class ReviewListCreateAPIView(ListCreateAPIView):
     """
     Block uchun sharhlar ro'yxatini olish (GET) va yangi sharh yaratish (POST).
     """
+    serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get(self, request, block_pk, *args, **kwargs):
-        """
-        URL'da berilgan 'block_pk' uchun barcha sharhlarni qaytaradi.
-        """
+    def get_queryset(self):
+        block_pk = self.kwargs.get('block_pk')
         block = get_object_or_404(ItemBlock, pk=block_pk)
-        reviews = Review.objects.filter(block=block)
-        serializer = ReviewSerializer(reviews, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Review.objects.filter(block=block)
 
-    def post(self, request, block_pk, *args, **kwargs):
-        """
-        URL'da berilgan 'block_pk' uchun yangi sharh yaratadi.
-        Modeldagi 'unique_together' tufayli bir user qayta sharh yoza olmaydi.
-        """
+    def perform_create(self, serializer):
+        block_pk = self.kwargs.get('block_pk')
         block = get_object_or_404(ItemBlock, pk=block_pk)
-        serializer = ReviewSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            # Agar user bu block'ga allaqachon sharh yozgan bo'lsa,
-            # unique_together cheklovi avtomatik xatolik qaytaradi.
-            serializer.save(user=request.user, block=block)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer.save(user=self.request.user, block=block)
+        except IntegrityError:
+            # unique_together (user, block) нарушено
+            raise serializers.ValidationError({
+                "detail": "Siz bu block uchun allaqachon sharh yozgansiz."
+            })
+
 
 
 class ReviewDetailAPIView(APIView):

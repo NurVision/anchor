@@ -10,12 +10,12 @@ class UserAdmin(BaseUserAdmin):
     list_display = ("id", "email", "username", "display_name", "is_active", "is_staff")
     list_display_links = ("id", "email", "username",)
     search_fields = ("email", "username", "display_name")
-    list_filter = ("is_active", "is_staff")
+    list_filter = ("is_active", "is_staff", "is_deleted")
 
     fieldsets = (
         (None, {'fields': ('email',)}),
         (_('Personal_info'), {'fields': ('username', 'display_name',)}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'groups', 'user_permissions')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', "is_deleted", 'groups', 'user_permissions')}),
     )
 
     add_fieldsets = (
