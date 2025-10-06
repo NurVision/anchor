@@ -29,7 +29,7 @@ class SendValidationSerializer(serializers.Serializer):
         """
         Create a new user and send verification email.
         """
-        email = validated_data["email"]
+        email = validated_data["email"].lower()
         password = validated_data["password"]
 
         try:

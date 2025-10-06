@@ -10,6 +10,7 @@ class ProfileManageAPIView(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserModelSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.FormParser, parsers.MultiPartParser]
 
     def get_object(self):
         return self.request.user

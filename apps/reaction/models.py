@@ -1,10 +1,9 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
 
-from apps.item.models import Item, ItemBlock
 from apps.common.models import BaseModel
+from apps.item.models import Item, ItemBlock
 from apps.users.models import User
 
 
@@ -42,8 +41,7 @@ class SearchHistory(BaseModel):
     class Meta:
         verbose_name = _("Search History")
         verbose_name_plural = _("Search Histories")
-        ordering = ['-created_at'] 
-
+        ordering = ['-created_at']
 
 
 class View(BaseModel):
@@ -62,25 +60,25 @@ class Like(BaseModel):
     class Meta:
         verbose_name = _("Like")
         verbose_name_plural = _("Likes")
-        # Bu bir foydalanuvchi bir block'ga qayta-qayta like bosishining oldini oladi
+
         unique_together = ('user', 'block')
 
 
-# foydalanib bolgandan keyingi sharh
 class Review(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     block = models.ForeignKey(ItemBlock, on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
-    rating = models.IntegerField(default=0, null=False, blank=False, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    rating = models.IntegerField(default=0, null=False, blank=False,
+                                 validators=[MinValueValidator(0), MaxValueValidator(5)])
 
     class Meta:
         verbose_name = _("Review")
         verbose_name_plural = _("Reviews")
-        # Har bir user bitta block'ga faqat bitta review yoza olishini ta'minlaydi
+
         unique_together = ('user', 'block')
 
     def __str__(self):
-        return self.text
+        return self.text or f"Review by {self.user}"
 
 
 class Bookmark(BaseModel):

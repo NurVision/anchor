@@ -19,7 +19,7 @@ class CategoryListView(generics.ListAPIView):
         return context
 
     def get_queryset(self):
-        queryset = Category.objects.select_related('parent').all()
+        queryset = Category.objects.select_related('parent').all().order_by('id')
 
         level = self.request.query_params.get('level')
         if level is not None:
