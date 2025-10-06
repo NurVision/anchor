@@ -1,7 +1,8 @@
 from django.urls import path
 
 from .views import (
-    BookmarkListCreateAPIView,
+    BookmarkListAPIView,
+    BookmarkCreateAPIView,
     BookmarkDestroyAPIView,
     CommentDetailAPIView,
     CommentListCreateAPIView,
@@ -16,7 +17,8 @@ from .views import (
 app_name = 'apps.reaction'
 
 urlpatterns = [
-    path('bookmarks/', BookmarkListCreateAPIView.as_view(), name='bookmark-list-create'),
+    path('bookmarks/', BookmarkListAPIView.as_view(), name='bookmark-list-create'),
+    path('bookmarks/create/', BookmarkCreateAPIView.as_view(), name='bookmark-create'),
     path('bookmarks/<int:pk>/', BookmarkDestroyAPIView.as_view(), name='bookmark-destroy'),
     path('comments/', CommentListCreateAPIView.as_view(), name='comment-list-create'),
     path('comments/<int:pk>/', CommentDetailAPIView.as_view(), name='comment-detail'),
