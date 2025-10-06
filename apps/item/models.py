@@ -96,6 +96,7 @@ class Category(models.Model):
     def is_leaf(self):
         return not self.children.exists()
 
+
 class Keyword(models.Model):
     name = models.CharField(max_length=255)
 
