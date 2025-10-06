@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
@@ -6,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from apps.reaction.models import Bookmark
 from apps.reaction.serializers.bookmark import BookmarkSerializer
 
-class BookmarkListCreateAPIView(APIView):
+class BookmarkListAPIView(APIView):
     """
     Foydalanuvchi uchun bookmark'lar ro'yxatini olish va yangi bookmark yaratish.
     """
@@ -21,20 +22,19 @@ class BookmarkListCreateAPIView(APIView):
         serializer = BookmarkSerializer(bookmarks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class BookmarkCreateAPIView(CreateAPIView):
+    queryset = Bookmark.objects.all()
+    serializer_class = BookmarkSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
-        """
-        Yangi bookmark yaratadi.
-        """
-        # Serializer'ga context orqali request'ni uzatamiz,
-        # bu validate method'ida user'ni olish uchun kerak.
-        serializer = BookmarkSerializer(data=request.data, context={'request': request})
-        
+        serializer = BookmarkSerializer(data=request.data)
         if serializer.is_valid():
-            # User'ni avtomatik tarzda request'dan olib saqlaymiz
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookmarkDestroyAPIView(APIView):
@@ -58,6 +58,7 @@ class BookmarkDestroyAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 __all__ = [
-    "BookmarkListCreateAPIView",
+    "BookmarkListAPIView",
     "BookmarkDestroyAPIView",
+    "BookmarkCreateAPIView",
 ]
