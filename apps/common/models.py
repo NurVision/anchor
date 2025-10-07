@@ -102,29 +102,28 @@ class SlugMixin(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Генерация slug_xx для каждого языка отдельно
+        Автоматическая генерация единого slug на основе первого непустого title_xx.
         """
+        # Проверяем, нужно ли регенерировать slug
         update_fields = kwargs.get('update_fields', None)
-        should_generate_slugs = update_fields is None or any(
-            f'slug_{lang}' in update_fields or f'title_{lang}' in update_fields
+        should_generate_slug = update_fields is None or any(
+            f'title_{lang}' in update_fields or 'slug' in update_fields
             for lang, _ in settings.LANGUAGES
         )
 
-        if should_generate_slugs:
+        if should_generate_slug:
+            # Берём первый заполненный title_xx
+            source_title = None
             for lang_code, _ in settings.LANGUAGES:
                 title_field = f"title_{lang_code}"
-                slug_field = f"slug_{lang_code}"
+                if hasattr(self, title_field):
+                    val = getattr(self, title_field, None)
+                    if val:
+                        source_title = val
+                        break
 
-                if hasattr(self, title_field) and hasattr(self, slug_field):
-
-                    current_slug = getattr(self, slug_field, None)
-                    current_title = getattr(self, title_field, None)
-
-                    if not current_slug and current_title:
-                        new_slug = self.generate_slug(current_title, slug_field)
-                        setattr(self, slug_field, new_slug)
-
-        if hasattr(self, "slug_uz") and getattr(self, "slug_uz", None):
-            self.slug = self.slug_uz
+            # Генерируем slug только если нашли хотя бы один title
+            if source_title:
+                self.slug = self.generate_slug(source_title, "slug")
 
         super().save(*args, **kwargs)

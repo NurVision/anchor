@@ -25,8 +25,8 @@ class ItemBlockDetailAPIView(RetrieveAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        item_slug = self.kwargs.get('slug')
-        return ItemBlock.objects.filter(slug=item_slug)
+        item_id = self.kwargs.get('id')
+        return ItemBlock.objects.filter(id=item_id)
 
 
 class ItemBlockCreateAPIView(CreateAPIView):

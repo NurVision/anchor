@@ -12,7 +12,7 @@ from apps.item.serialziers.item import ItemSerializer
 class ItemDetailAPIView(RetrieveAPIView):
     serializer_class = ItemSerializer
     permission_classes = []
-    lookup_field = 'id'
+    lookup_field = 'slug'
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
