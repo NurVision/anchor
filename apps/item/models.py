@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from apps.common.models import SlugMixin, BaseModel
 
 
-class Category(models.Model):
+class Category(SlugMixin):
     slug = models.SlugField(unique=True, blank=True, editable=False)
     title = models.CharField(max_length=255)
     parent = models.ForeignKey(
@@ -108,7 +108,7 @@ class Keyword(models.Model):
         return self.name
 
 
-class Item(models.Model):
+class Item(SlugMixin):
     slug = models.SlugField()
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     logo = models.URLField(
@@ -164,7 +164,7 @@ class ItemKeyword(BaseModel):
         return f"{self.item.title} - {self.keyword.name}"
 
 
-class ItemBlock(models.Model):
+class ItemBlock(BaseModel):
     TYPE_CHOICES = (
         ("website", _("Website")),
         ("app", _("App")),
