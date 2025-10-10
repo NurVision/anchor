@@ -39,6 +39,7 @@ EXTERNAL_APPS = [
     "drf_yasg",
     "django_recaptcha",
     "django_filters",
+    'corsheaders',
 ]
 
 INSTALLED_APPS = EXTERNAL_APPS + DJANGO_APPS + LOCAL_APPS
@@ -59,7 +60,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware'
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Internationalization settings
 LANGUAGE_CODE = 'uz'
