@@ -138,7 +138,17 @@ class Item(SlugMixin):
         return self.title
 
     def get_keywords(self):
-        return [ik.keyword for ik in self.item_keywords.all()]
+        """
+        Возвращает уникальные ключевые слова, связанные с этим товаром через ItemKeyword.
+        """
+        keywords = [ik.keyword for ik in self.item_keywords.all()]
+        seen = set()
+        unique_keywords = []
+        for kw in keywords:
+            if kw.id not in seen:
+                seen.add(kw.id)
+                unique_keywords.append(kw)
+        return unique_keywords
 
 
 class ItemKeyword(BaseModel):
