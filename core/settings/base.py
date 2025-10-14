@@ -34,6 +34,7 @@ EXTERNAL_APPS = [
     'rosetta',
     'modeltranslation',
     "rest_framework",
+    "corsheaders",
     "rest_framework_simplejwt",
     'rest_framework_simplejwt.token_blacklist',
     "drf_yasg",
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     'django.middleware.locale.LocaleMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     # "apps.common.middleware.UserLanguageMiddleware"
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -259,3 +261,8 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False") == "True"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "webmaster@localhost")
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://frontend:5173",
+]
